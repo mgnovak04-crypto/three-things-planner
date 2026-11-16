@@ -10,73 +10,85 @@
 <style>
 :root{
   /* Layout: one column of ruled rows, no cards. The three priorities carry big numerals.
-     The Now screen floods with the colour of the current space: cobalt for work, ember for personal. */
+     Colour follows the Irish tricolour: green for work, orange for personal, white paper between.
+     Each space has a fill (the flag colour) and an ink (the same hue, deep enough to read as text on paper). */
   color-scheme:light;
-  --paper:#EEF0F4;
-  --sheet:#FAFBFD;
-  --ink:#141A2E;
-  --quiet:#586077;
-  --rule:#D2D7E1;
-  --work:#2742D9;
+  --paper:#FFFFFF;
+  --sheet:#F3F7F3;
+  --ink:#10261B;
+  --quiet:#55655B;
+  --rule:#D3DDD6;
+  --work:#0E8549;
   --on-work:#FFFFFF;
-  --personal:#C73E17;
-  --on-personal:#FFFFFF;
-  --done:#1D7F55;
-  --warn:#8A5A00;
-  --scrim:rgb(12 16 34 / .5);
+  --work-ink:#0E8549;
+  --personal:#FF883E;
+  --on-personal:#2B1300;
+  --personal-ink:#B85300;
+  --done:#1F5C3E;
+  --warn:#6A5200;
+  --flag-green:#169B62;
+  --flag-white:#FFFFFF;
+  --flag-orange:#FF883E;
+  --scrim:rgb(8 24 16 / .5);
   --display:"Bricolage Grotesque","Arial Narrow","Helvetica Neue",Arial,sans-serif;
   --body:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --accent:var(--work);
   --on-accent:var(--on-work);
+  --accent-ink:var(--work-ink);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
-    --paper:#0E1120;
-    --sheet:#171B2F;
-    --ink:#E8EBF5;
-    --quiet:#9AA3BA;
-    --rule:#2B3252;
-    --work:#93A3FF;
-    --on-work:#0E1120;
-    --personal:#FF9166;
-    --on-personal:#0E1120;
-    --done:#5FD39B;
-    --warn:#E5B85C;
+    --paper:#0B1410;
+    --sheet:#14211A;
+    --ink:#EEF4EF;
+    --quiet:#9DACA2;
+    --rule:#28382E;
+    --work:#27B877;
+    --on-work:#04150D;
+    --work-ink:#3CCB8A;
+    --personal:#FF9A57;
+    --on-personal:#2B1300;
+    --personal-ink:#FF9A57;
+    --done:#CFE8DA;
+    --warn:#E3C567;
     --scrim:rgb(0 0 0 / .62);
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --paper:#0E1120;
-  --sheet:#171B2F;
-  --ink:#E8EBF5;
-  --quiet:#9AA3BA;
-  --rule:#2B3252;
-  --work:#93A3FF;
-  --on-work:#0E1120;
-  --personal:#FF9166;
-  --on-personal:#0E1120;
-  --done:#5FD39B;
-  --warn:#E5B85C;
+  --paper:#0B1410;
+  --sheet:#14211A;
+  --ink:#EEF4EF;
+  --quiet:#9DACA2;
+  --rule:#28382E;
+  --work:#27B877;
+  --on-work:#04150D;
+  --work-ink:#3CCB8A;
+  --personal:#FF9A57;
+  --on-personal:#2B1300;
+  --personal-ink:#FF9A57;
+  --done:#CFE8DA;
+  --warn:#E3C567;
   --scrim:rgb(0 0 0 / .62);
 }
 
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.4 var(--body);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
-[data-space="work"]{--accent:var(--work);--on-accent:var(--on-work)}
-[data-space="personal"]{--accent:var(--personal);--on-accent:var(--on-personal)}
+[data-space="work"]{--accent:var(--work);--on-accent:var(--on-work);--accent-ink:var(--work-ink)}
+[data-space="personal"]{--accent:var(--personal);--on-accent:var(--on-personal);--accent-ink:var(--personal-ink)}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit}
 button:disabled{cursor:default;opacity:.45}
 input{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
 [hidden]{display:none!important}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
 /* ---------- frame ---------- */
 #app{height:100%;display:flex;flex-direction:column;max-width:720px;margin:0 auto}
 #app[data-view="week"]{max-width:1180px}
+#app::before{content:"";flex:none;height:6px;background:linear-gradient(90deg,var(--flag-green) 0 33.34%,var(--flag-white) 33.34% 66.67%,var(--flag-orange) 66.67%)}
 #top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px 12px;padding:18px 20px 14px;border-bottom:2px solid var(--ink)}
 #top h1{margin:0;font:800 clamp(26px,7.6vw,34px)/1 var(--display);font-stretch:75%;letter-spacing:-.01em}
 #top p{margin:6px 0 0;font-size:13px;color:var(--quiet)}
@@ -89,7 +101,7 @@ input{font:inherit;color:inherit}
 #main{flex:1;min-height:0;overflow-y:auto;padding:0 20px 28px}
 #bar{display:grid;grid-template-columns:1fr 1fr 1fr auto;border-top:2px solid var(--ink);background:var(--paper)}
 #bar button{min-height:58px;font-weight:600;font-size:15px;text-align:center}
-#bar .tab[aria-current="page"]{box-shadow:inset 0 4px 0 var(--accent)}
+#bar .tab[aria-current="page"]{box-shadow:inset 0 4px 0 var(--accent-ink)}
 #bar .tab .n{display:inline-block;min-width:20px;margin-left:4px;padding:0 6px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}
 #bar .cap{padding:0 20px;background:var(--accent);color:var(--on-accent);font-size:16px}
 
@@ -117,7 +129,7 @@ section{margin-top:22px}
 
 .slot{display:grid;grid-template-columns:44px 1fr 44px;gap:0 10px;align-items:start;width:100%;padding:14px 0;border-top:1px solid var(--rule)}
 .slot .check{margin-right:-9px;justify-self:end}
-.num{font:800 54px/.84 var(--display);font-stretch:75%;color:var(--accent)}
+.num{font:800 54px/.84 var(--display);font-stretch:75%;color:var(--accent-ink)}
 .slot.is-done .num,.slot.empty .num{color:var(--rule)}
 .slot.empty{border-top-style:dashed}
 .slot.empty .t{color:var(--quiet);font-weight:500}
@@ -131,7 +143,14 @@ section{margin-top:22px}
 .rbody{display:block;width:100%;padding:6px 0}
 .row .t{font-size:16px;font-weight:500}
 .racts{display:flex;gap:6px}
-.topmark{display:inline-block;width:8px;height:8px;margin:0 7px 2px 0;background:var(--accent);vertical-align:middle}
+.topmark{display:inline-block;width:8px;height:8px;margin:0 7px 2px 0;background:var(--accent-ink);vertical-align:middle}
+.stuck{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:12px 0 2px;border-top:1px solid var(--rule);font-size:14.5px;color:var(--quiet)}
+.stuck .btn{color:var(--ink)}
+.sortbtn{margin:8px 0 6px}
+.linkbtn{min-height:32px;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.sortitem{margin:4px 0 2px;font:700 24px/1.15 var(--display);font-stretch:85%;overflow-wrap:anywhere;text-wrap:balance}
+.sortgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sortgrid .btn{min-height:52px;font-size:16px}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:8px 18px;border:1.5px solid var(--ink);border-radius:8px;font-weight:600;font-size:15px;text-align:center}
 .btn.solid{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
@@ -177,11 +196,11 @@ section{margin-top:22px}
 .dhead{display:flex;align-items:center;gap:8px;min-height:36px}
 .dname{font:800 22px/1 var(--display);font-stretch:75%}
 .day.past .dname{color:var(--quiet)}
-.day.today .dname{color:var(--accent)}
-.dtag{font-size:12px;font-weight:700;color:var(--accent)}
+.day.today .dname{color:var(--accent-ink)}
+.dtag{font-size:12px;font-weight:700;color:var(--accent-ink)}
 .heavy{padding:1px 8px;border:1px solid var(--warn);border-radius:999px;font-size:12px;font-weight:700;color:var(--warn)}
 .dload{margin-left:auto;font-size:13px;color:var(--quiet);font-variant-numeric:tabular-nums}
-.dadd{min-height:36px;padding-left:6px;font-size:14px;font-weight:600;color:var(--accent);white-space:nowrap}
+.dadd{min-height:36px;padding-left:6px;font-size:14px;font-weight:600;color:var(--accent-ink);white-space:nowrap}
 .day .row{padding:0;border-top:0}
 .day .row .t{font-size:15px}
 .empty-day{margin:4px 0 0;font-size:14px;color:var(--quiet)}
@@ -294,7 +313,7 @@ const S = {
   view:'today', space:'work', weekOffset:0, today:dkey(new Date()),
   tasks:new Map(), weeks:new Map(), focus:null,
   loaded:false, mode:'loading', confirmed:false, stale:false,
-  sheet:null, nowOpen:false, undo:null
+  sheet:null, nowOpen:false, undo:null, laterOpen:false
 };
 try{ const sp = localStorage.getItem('three-things-space'); if(sp === 'work' || sp === 'personal') S.space = sp; }catch(e){}
 
@@ -423,7 +442,7 @@ async function boot(){
 const strip = t => { const o = Object.assign({}, t); delete o.id; return o; };
 function create(data){
   const id = B.newId();
-  const t = Object.assign({id, title:'', step:'', est:0, space:S.space, day:null, top:false, order:0, done:false, doneAt:0, createdAt:Date.now(), rolls:0, spent:0, parked:0}, data);
+  const t = Object.assign({id, title:'', step:'', est:0, space:S.space, day:null, top:false, order:0, done:false, doneAt:0, createdAt:Date.now(), rolls:0, spent:0, parked:0, later:false, wait:'', repeat:'', nextId:''}, data);
   oT.track(id, t, B.putTask(id, strip(t)));
   refresh();
   return id;
@@ -445,21 +464,46 @@ function restore(t){ oT.track(t.id, t, B.putTask(t.id, strip(t))); refresh(); }
 const topCount = (day, space, except) => [...S.tasks.values()].filter(t => t.space === space && t.day === day && t.top && t.id !== except).length;
 const tomorrowKey = () => dkey(addDays(fromKey(S.today), 1));
 
+/* Repeats: finishing or skipping one creates the next, so missed days never pile up. */
+function nextDay(t){
+  if(t.repeat === 'weekly'){
+    let d = fromKey(t.day || S.today);
+    do { d = addDays(d, 7); } while(dkey(d) <= S.today);
+    return dkey(d);
+  }
+  let d = addDays(fromKey(S.today), 1);
+  if(t.repeat === 'weekdays') while(d.getDay() === 0 || d.getDay() === 6) d = addDays(d, 1);
+  return dkey(d);
+}
+function spawnNext(t){
+  return create({title:t.title, step:t.step || '', est:t.est || 0, space:t.space, repeat:t.repeat, day:nextDay(t)});
+}
+function finish(t){
+  const ch = {done:true, doneAt:Date.now()};
+  if(t.day !== S.today){ ch.day = S.today; ch.top = false; }
+  let spawned = '';
+  if(t.repeat){ spawned = spawnNext(t); ch.nextId = spawned; }
+  return {ch, spawned};
+}
 function toggleDone(id){
   const t = S.tasks.get(id);
   if(!t) return;
-  if(t.done){ patch(id, {done:false, doneAt:0}); return; }
+  if(t.done){
+    const nx = t.nextId && S.tasks.get(t.nextId);
+    if(nx && !nx.done) remove(t.nextId);
+    patch(id, {done:false, doneAt:0, nextId:''});
+    return;
+  }
   if(S.focus && S.focus.taskId === id){ stopFocus(true); return; }
-  const prev = {done:false, doneAt:0, day:t.day, top:t.top};
-  const ch = {done:true, doneAt:Date.now()};
-  if(t.day !== S.today){ ch.day = S.today; ch.top = false; }
-  patch(id, ch);
-  toast('Done: ' + clip(t.title, 40), () => patch(id, prev));
+  const prev = {done:false, doneAt:0, day:t.day, top:t.top, nextId:''};
+  const f = finish(t);
+  patch(id, f.ch);
+  toast('Done: ' + clip(t.title, 40), () => { if(f.spawned) remove(f.spawned); patch(id, prev); });
 }
 function moveTo(id, to){
   const t = S.tasks.get(id);
   if(!t) return;
-  const ch = {top:false};
+  const ch = {top:false, later:false};
   if(to === 'inbox') ch.day = null;
   else {
     ch.day = to === 'today' ? S.today : tomorrowKey();
@@ -467,10 +511,13 @@ function moveTo(id, to){
   }
   patch(id, ch);
 }
-function dropTask(id){
+function dropTask(id, skip){
   if(S.focus && S.focus.taskId === id) setFocus(null);
+  const t0 = S.tasks.get(id);
+  let spawned = '', when = '';
+  if(skip && t0 && t0.repeat && !t0.done){ when = shortDay(fromKey(nextDay(t0))); spawned = spawnNext(t0); }
   const t = remove(id);
-  if(t) toast('Dropped: ' + clip(t.title, 36), () => restore(t));
+  if(t) toast(spawned ? 'Skipped. Next one is ' + when + '.' : 'Dropped: ' + clip(t.title, 36), () => { if(spawned) remove(spawned); restore(t); });
 }
 
 /* ---------- focus ---------- */
@@ -481,12 +528,8 @@ function logFocus(markDone){
   const t = S.tasks.get(f.taskId);
   const el = Math.max(0, Math.round((Date.now() - f.startedAt) / 60000));
   if(t){
-    const ch = {};
+    const ch = markDone ? finish(t).ch : {};
     if(el) ch.spent = (t.spent || 0) + el;
-    if(markDone){
-      ch.done = true; ch.doneAt = Date.now();
-      if(t.day !== S.today){ ch.day = S.today; ch.top = false; }
-    }
     if(Object.keys(ch).length) patch(f.taskId, ch);
   }
   setFocus(null);
@@ -515,7 +558,9 @@ function lists(){
   const tops = todays.filter(t => t.top).sort((a, b) => (a.order || 0) - (b.order || 0) || a.createdAt - b.createdAt).slice(0, 3);
   return {
     all, tops,
-    inbox: all.filter(t => !t.done && !t.day).sort((a, b) => b.createdAt - a.createdAt),
+    inbox: all.filter(t => !t.done && !t.day && !t.later && !t.wait).sort((a, b) => b.createdAt - a.createdAt),
+    later: all.filter(t => !t.done && !t.day && t.later && !t.wait).sort((a, b) => b.createdAt - a.createdAt),
+    waiting: all.filter(t => !t.done && t.wait).sort((a, b) => { const x = a.day || '9', y = b.day || '9'; return x < y ? -1 : x > y ? 1 : a.createdAt - b.createdAt; }),
     carried: all.filter(t => !t.done && t.day && t.day < today).sort((a, b) => a.day < b.day ? -1 : a.day > b.day ? 1 : a.createdAt - b.createdAt),
     also: todays.filter(t => !t.done && tops.indexOf(t) < 0).sort((a, b) => a.createdAt - b.createdAt),
     openToday: todays.filter(t => !t.done),
@@ -541,16 +586,21 @@ function metaLine(t){
   if(t.est) b.push(mins(t.est));
   if(t.spent) b.push(mins(t.spent) + ' spent');
   if(t.parked && !t.day && !t.done) b.push('parked during focus');
+  if(t.wait && !t.done) b.push('waiting on ' + esc(t.wait));
+  if(t.repeat) b.push(t.repeat === 'weekly' ? 'weekly' : t.repeat === 'weekdays' ? 'weekdays' : 'daily');
   if((t.rolls || 0) >= 3 && !t.done) b.push('moved ' + t.rolls + ' times');
   return b.join(' · ');
 }
 function row(t, o){
-  const m = metaLine(t);
+  const ml = metaLine(t);
+  const m = (o.when ? (t.day ? 'follow up ' + shortDay(fromKey(t.day)) : 'no follow-up day') + (ml ? ' · ' : '') : '') + ml;
   let acts = '';
+  if(o.unblock) acts = '<button type="button" class="btn sm" data-act="unblock" data-id="' + t.id + '">Got reply</button>';
+  if(o.toinbox) acts = '<button type="button" class="btn sm" data-act="toinbox" data-id="' + t.id + '">To inbox</button>';
   if(o.start && !t.done) acts = '<button type="button" class="btn sm" data-act="start" data-id="' + t.id + '">' + (isFocus(t) ? 'Timer' : 'Start') + '</button>';
   if(o.today && !t.done) acts = '<button type="button" class="btn sm" data-act="move" data-to="today" data-id="' + t.id + '">Today</button>';
   if(o.pick) acts = '<button type="button" class="btn sm" data-act="pick" data-id="' + t.id + '">Pick</button>';
-  if(o.sort && !t.done) acts = '<button type="button" class="chip" data-act="move" data-to="tomorrow" data-id="' + t.id + '">Tomorrow</button><button type="button" class="chip" data-act="move" data-to="inbox" data-id="' + t.id + '">Inbox</button><button type="button" class="chip" data-act="drop" data-id="' + t.id + '">Drop</button>';
+  if(o.sort && !t.done) acts = '<button type="button" class="chip" data-act="move" data-to="tomorrow" data-id="' + t.id + '">Tomorrow</button><button type="button" class="chip" data-act="move" data-to="inbox" data-id="' + t.id + '">Inbox</button><button type="button" class="chip" data-act="drop" data-id="' + t.id + '">' + (t.repeat ? 'Skip' : 'Drop') + '</button>';
   const body = '<button type="button" class="rbody" data-act="edit" data-id="' + t.id + '"><span class="t">' + (o.mark && t.top ? '<i class="topmark"></i>' : '') + esc(t.title) + '</span>' + (m ? '<span class="m">' + m + '</span>' : '') + '</button>';
   if(o.sort) return '<div class="row col' + (t.done ? ' is-done' : '') + '">' + (o.nocheck ? '<span></span>' : check(t)) + '<div>' + body + '<div class="chips tight">' + acts + '</div></div></div>';
   return '<div class="row' + (o.nocheck ? ' nock' : '') + (t.done ? ' is-done' : '') + '">' + (o.nocheck ? '' : check(t)) + body + '<span class="racts">' + acts + '</span></div>';
@@ -558,7 +608,7 @@ function row(t, o){
 function carriedRow(t){
   const nudge = (t.rolls || 0) >= 3 ? '<span class="m nudge">Moved ' + t.rolls + ' times. Shrink the first step, or drop it.</span>' : '';
   return '<div class="row col">' + check(t) + '<div><button type="button" class="rbody" data-act="edit" data-id="' + t.id + '"><span class="t">' + esc(t.title) + '</span><span class="m">from ' + shortDay(fromKey(t.day)) + (t.est ? ' · ' + mins(t.est) : '') + '</span>' + nudge + '</button>' +
-    '<div class="chips tight"><button type="button" class="chip" data-act="move" data-to="today" data-id="' + t.id + '">Today</button><button type="button" class="chip" data-act="move" data-to="tomorrow" data-id="' + t.id + '">Tomorrow</button><button type="button" class="chip" data-act="move" data-to="inbox" data-id="' + t.id + '">Inbox</button><button type="button" class="chip" data-act="drop" data-id="' + t.id + '">Drop</button></div></div></div>';
+    '<div class="chips tight"><button type="button" class="chip" data-act="move" data-to="today" data-id="' + t.id + '">Today</button><button type="button" class="chip" data-act="move" data-to="tomorrow" data-id="' + t.id + '">Tomorrow</button><button type="button" class="chip" data-act="move" data-to="inbox" data-id="' + t.id + '">Inbox</button><button type="button" class="chip" data-act="drop" data-id="' + t.id + '">' + (t.repeat ? 'Skip' : 'Drop') + '</button></div></div></div>';
 }
 function slot(i, t, primary){
   if(!t) return '<button type="button" class="slot empty" data-act="fill"><span class="num" aria-hidden="true">' + i + '</span><span class="sbody"><span class="t">Open slot</span><span class="m">Pick or add priority ' + i + '</span></span><span></span></button>';
@@ -590,6 +640,7 @@ function todayHTML(){
   h += '<section><div class="shd"><h2>Three things</h2><span class="hint">' + (L.tops.length ? nd + ' of ' + L.tops.length + ' done' : 'The cap is three') + '</span></div>';
   for(let i = 0; i < 3; i++) h += slot(i + 1, L.tops[i], !!first && L.tops[i] === first);
   if(L.tops.length === 3 && nd === 3) h += '<p class="allthree">All three done. Anything else today is a bonus.</p>';
+  if(L.openToday.length >= 2 && !S.focus) h += '<div class="stuck"><span>Not sure where to start?</span><span class="racts"><button type="button" class="btn sm" data-act="picknext">Next up</button><button type="button" class="btn sm" data-act="picksmall">Something small</button></span></div>';
   h += '</section>';
   if(L.also.length){
     const sum = L.also.reduce((a, t) => a + (t.est || 0), 0);
@@ -604,8 +655,12 @@ function inboxHTML(){
   const L = lists();
   let h = '<section><div class="shd"><h2>Inbox</h2><span class="hint">' + (L.inbox.length ? L.inbox.length + ' to sort' : '') + '</span></div>';
   if(!L.inbox.length) h += '<p class="quietp">Nothing waiting on a decision. Capture puts new things here.</p>';
-  else h += '<p class="quietp">Tap one to give it a day and a first step, or send it straight to today.</p>' + L.inbox.map(t => row(t, {today:true})).join('');
-  return h + '</section>';
+  else h += (L.inbox.length > 1 ? '<button type="button" class="btn solid wide sortbtn" data-act="sortopen">Sort one at a time</button>' : '<p class="quietp">Tap it to give it a day and a first step, or send it straight to today.</p>') + L.inbox.map(t => row(t, {today:true})).join('');
+  h += '</section>';
+  if(L.waiting.length) h += '<section><div class="shd"><h3>Waiting on · ' + L.waiting.length + '</h3><span class="hint">Not yours to do yet</span></div>' + L.waiting.map(t => row(t, {unblock:true, when:true})).join('') + '</section>';
+  if(L.later.length) h += '<section><div class="shd"><h3>Later · ' + L.later.length + '</h3><button type="button" class="linkbtn" data-act="latertoggle">' + (S.laterOpen ? 'Hide' : 'Show') + '</button></div>' +
+    (S.laterOpen ? L.later.map(t => row(t, {toinbox:true})).join('') : '<p class="quietp">Parked without a date. Glance at these when you plan the week.</p>') + '</section>';
+  return h;
 }
 function weekHTML(){
   const L = lists(), ws = viewWeekStart(), we = addDays(ws, 6);
@@ -638,8 +693,16 @@ function weekHTML(){
   h += '</div></section>';
   const a = ws.getTime(), b = addDays(ws, 7).getTime();
   const wins = L.all.filter(t => t.done && t.doneAt >= a && t.doneAt < b).sort((x, y) => x.doneAt - y.doneAt);
-  h += '<section><div class="shd"><h3>Done this week · ' + wins.length + '</h3></div>' +
-    (wins.length ? '<ul class="wins">' + wins.map(t => '<li><span>' + DOW[new Date(t.doneAt).getDay()] + '</span>' + esc(t.title) + '</li>').join('') + '</ul>' : '<p class="quietp">Finished tasks collect here.</p>') + '</section>';
+  const focused = wins.reduce((s, t) => s + (t.spent || 0), 0);
+  const cmp = wins.filter(t => t.est && t.spent);
+  let est = '';
+  if(cmp.length >= 3){
+    const r = cmp.reduce((s, t) => s + t.spent, 0) / cmp.reduce((s, t) => s + t.est, 0);
+    est = r >= 1.15 ? 'Tasks ran about ' + r.toFixed(1) + '× your estimates. Pad next week\'s guesses.' : r <= 0.85 ? 'You finished faster than you guessed, about ' + r.toFixed(1) + '× the estimate.' : 'Your time estimates were close this week.';
+  }
+  h += '<section><div class="shd"><h3>Done this week · ' + wins.length + '</h3><span class="hint">' + (focused ? mins(focused) + ' focused' : '') + '</span></div>' +
+    (wins.length ? '<ul class="wins">' + wins.map(t => '<li><span>' + DOW[new Date(t.doneAt).getDay()] + '</span>' + esc(t.title) + '</li>').join('') + '</ul>' : '<p class="quietp">Finished tasks collect here.</p>') +
+    (est ? '<p class="quietp">' + est + '</p>' : '') + '</section>';
   return h;
 }
 
@@ -703,7 +766,7 @@ function renderNow(){
 
 /* ---------- sheets ---------- */
 function dayChoices(sel){
-  const t = fromKey(S.today), out = [{k:'', l:'Inbox'}, {k:S.today, l:'Today'}, {k:tomorrowKey(), l:'Tomorrow'}];
+  const t = fromKey(S.today), out = [{k:'', l:'Inbox'}, {k:'later', l:'Later'}, {k:S.today, l:'Today'}, {k:tomorrowKey(), l:'Tomorrow'}];
   const end = addDays(monday(t), 6);
   for(let d = addDays(t, 2); d <= end; d = addDays(d, 1)) out.push({k:dkey(d), l:DOW[d.getDay()] + ' ' + d.getDate()});
   const nm = addDays(monday(t), 7);
@@ -737,12 +800,27 @@ function sheetHTML(){
       '<div><label for="ed-title">Task</label><input id="ed-title" type="text" value="' + esc(d.title) + '" maxlength="200" autocomplete="off"></div>' +
       '<div><label for="ed-step">First step</label><input id="ed-step" type="text" value="' + esc(d.step) + '" placeholder="The smallest way to start. Open the doc, write one line." maxlength="200" autocomplete="off"></div>' +
       '<fieldset><legend>How long</legend><div class="chips">' + [5, 15, 25, 45, 60, 90].map(n => '<button type="button" class="chip" data-act="edest" data-n="' + n + '" aria-pressed="' + (d.est === n) + '">' + mins(n) + '</button>').join('') + '</div></fieldset>' +
-      '<fieldset><legend>When</legend><div class="chips">' + dayChoices(d.day).map(o => '<button type="button" class="chip" data-act="edday" data-day="' + o.k + '" aria-pressed="' + ((d.day || '') === o.k) + '">' + o.l + '</button>').join('') +
+      '<fieldset><legend>When</legend><div class="chips">' + dayChoices(d.day).map(o => '<button type="button" class="chip" data-act="edday" data-day="' + o.k + '" aria-pressed="' + (o.k === 'later' ? !d.day && !!d.later : o.k === '' ? !d.day && !d.later : d.day === o.k) + '">' + o.l + '</button>').join('') +
       '<label class="vh" for="ed-date">Another date</label><input id="ed-date" type="date" value="' + (d.day || '') + '" min="' + S.today + '"></div></fieldset>' +
       '<fieldset><legend>Priority</legend><div class="chips"><button type="button" class="chip" data-act="edtop" aria-pressed="' + !!d.top + '">One of the three that day</button></div></fieldset>' +
+      '<fieldset><legend>Repeats</legend><div class="chips">' + [['', 'No'], ['daily', 'Daily'], ['weekdays', 'Weekdays'], ['weekly', 'Weekly']].map(r => '<button type="button" class="chip" data-act="edrep" data-r="' + r[0] + '" aria-pressed="' + ((d.repeat || '') === r[0]) + '">' + r[1] + '</button>').join('') + '</div></fieldset>' +
+      '<div><label for="ed-wait">Waiting on</label><input id="ed-wait" type="text" value="' + esc(d.wait) + '" placeholder="Who or what? Leave empty if it is on you." maxlength="80" autocomplete="off"></div>' +
       '<fieldset><legend>Space</legend><div class="chips"><button type="button" class="chip" data-act="edspace" data-space="work" aria-pressed="' + (d.space === 'work') + '">Work</button><button type="button" class="chip" data-act="edspace" data-space="personal" aria-pressed="' + (d.space === 'personal') + '">Personal</button></div></fieldset>' +
       (s.err ? '<p class="err" role="alert">' + esc(s.err) + '</p>' : '') +
       '<div class="sfoot"><button type="button" class="btn solid" data-act="edsave">Save</button><button type="button" class="btn" data-act="eddel">' + (s.confirmDel ? 'Tap again to delete' : 'Delete') + '</button></div></div>';
+  }
+  if(s.type === 'sort'){
+    const q = lists().inbox.filter(t => s.skipped.indexOf(t.id) < 0).reverse();
+    const head = '<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-h"><div class="shead"><h2 id="sh-h">Sort the inbox</h2><button type="button" class="x" data-act="close">Close</button></div>';
+    if(!q.length) return head + '<p class="note">' + (s.count ? s.count + ' sorted. ' : '') + 'Nothing left to decide.</p><div class="sfoot"><button type="button" class="btn solid" data-act="close">Done</button></div></div>';
+    const t = q[0], t0 = fromKey(S.today), end = addDays(monday(t0), 6), days = [];
+    for(let d = addDays(t0, 2); d <= end; d = addDays(d, 1)) days.push({k:dkey(d), l:DOW[d.getDay()] + ' ' + d.getDate()});
+    const nm = dkey(addDays(monday(t0), 7));
+    if(nm !== tomorrowKey() && !days.some(o => o.k === nm)) days.push({k:nm, l:'Next Mon'});
+    return head + '<p class="note">' + q.length + ' left. One decision at a time.</p><p class="sortitem">' + esc(t.title) + '</p>' +
+      '<div class="sortgrid"><button type="button" class="btn solid" data-act="sortto" data-day="' + S.today + '" data-id="' + t.id + '">Today</button><button type="button" class="btn" data-act="sortto" data-day="' + tomorrowKey() + '" data-id="' + t.id + '">Tomorrow</button></div>' +
+      '<div class="chips">' + days.map(o => '<button type="button" class="chip" data-act="sortto" data-day="' + o.k + '" data-id="' + t.id + '">' + o.l + '</button>').join('') + '<button type="button" class="chip" data-act="sortlater" data-id="' + t.id + '">Later</button></div>' +
+      '<div class="sfoot"><button type="button" class="btn sm" data-act="edit" data-id="' + t.id + '">Add details</button><button type="button" class="btn sm" data-act="sortskip" data-id="' + t.id + '">Skip</button><button type="button" class="btn sm" data-act="drop" data-id="' + t.id + '">Drop</button></div></div>';
   }
   /* shutdown */
   const L = lists(), left = L.carried.concat(L.openToday);
@@ -754,31 +832,34 @@ function sheetHTML(){
     '<h3>Tomorrow</h3><p class="note">' + (tm.length ? 'Starts with: ' + esc(tm[0].title) + (tm.length > 1 ? ', plus ' + (tm.length - 1) + ' more.' : '.') : 'Nothing planned yet. Pick three in the morning.') + '</p>' +
     '<div class="sfoot"><button type="button" class="btn solid" data-act="closeday">Close the day</button></div></div>';
 }
-function renderSheet(){
+function renderSheet(fresh){
   const sc = $('#scrim');
   if(!S.sheet){ sc.hidden = true; sc.innerHTML = ''; return; }
-  const ci = $('#capin'), keep = ci ? ci.value : '';
+  const ci = $('#capin'), keep = ci && !fresh ? ci.value : '';
+  const old = sc.firstElementChild, y = old && !fresh ? old.scrollTop : 0;
   sc.innerHTML = sheetHTML();
   sc.hidden = false;
+  const el = sc.firstElementChild;
+  if(el && !fresh){ el.style.animation = 'none'; el.scrollTop = y; }
   const ni = $('#capin');
   if(ni){ ni.value = keep; ni.focus(); }
 }
 function renderSheetLive(){
   const s = S.sheet;
   if(!s) return;
-  if(s.type === 'shutdown') renderSheet();
+  if(s.type === 'shutdown' || s.type === 'sort') renderSheet();
   else if(s.type === 'capture'){ const c = $('#capcands'); if(c) c.innerHTML = capCands(); }
 }
 function openCapture(o){
   if(!S.loaded) return;
   S.sheet = {type:'capture', day:o.day || null, top:!!o.top, added:0, lastDay:null, err:''};
-  renderSheet();
+  renderSheet(true);
 }
 function openEdit(id){
   const t = S.tasks.get(id);
   if(!t) return;
-  S.sheet = {type:'edit', id, err:'', confirmDel:false, draft:{title:t.title, step:t.step || '', est:t.est || 0, day:t.day || null, top:!!t.top, space:t.space}};
-  renderSheet();
+  S.sheet = {type:'edit', id, err:'', confirmDel:false, draft:{title:t.title, step:t.step || '', est:t.est || 0, day:t.day || null, top:!!t.top, space:t.space, later:!!t.later, wait:t.wait || '', repeat:t.repeat || ''}};
+  renderSheet(true);
 }
 function closeSheet(){ S.sheet = null; renderSheet(); }
 function capAdd(){
@@ -800,11 +881,13 @@ function saveEdit(){
   if(!t){ closeSheet(); return; }
   const title = d.title.trim();
   if(!title){ s.err = 'Give it a name first.'; renderSheet(); return; }
-  if(!d.day) d.top = false;
+  if(d.repeat && !d.day) d.day = S.today;
+  if(d.day) d.later = false; else d.top = false;
   if(d.top && topCount(d.day, d.space, s.id) >= 3){ s.err = 'That day already has three priorities. Swap one out first.'; renderSheet(); return; }
-  const next = {title, step:d.step.trim(), est:d.est, day:d.day, top:d.top, space:d.space};
+  const next = {title, step:d.step.trim(), est:d.est, day:d.day, top:d.top, space:d.space, later:!!d.later, wait:d.wait.trim(), repeat:d.repeat};
+  const DEF = {step:'', est:0, top:false, later:false, wait:'', repeat:''};
   const ch = {};
-  Object.keys(next).forEach(k => { if(next[k] !== t[k]) ch[k] = next[k]; });
+  Object.keys(next).forEach(k => { const cur = t[k] === undefined ? DEF[k] : t[k]; if(next[k] !== cur) ch[k] = next[k]; });
   if(ch.top) ch.order = Date.now();
   closeSheet();
   if(Object.keys(ch).length) patch(s.id, ch);
@@ -878,11 +961,21 @@ const ACT = {
   fstop(){ stopFocus(false); },
   fmore(b){ const f = S.focus; if(f) setFocus(Object.assign({}, f, {planned:f.planned + Number(b.dataset.n)})); },
   move(b, id){ moveTo(id, b.dataset.to); },
-  drop(b, id){ dropTask(id); },
+  drop(b, id){ dropTask(id, true); },
+  sortopen(){ S.sheet = {type:'sort', skipped:[], count:0}; renderSheet(true); },
+  sortto(b, id){ const s = S.sheet; if(s && s.type === 'sort') s.count++; patch(id, {day:b.dataset.day, later:false, top:false}); },
+  sortlater(b, id){ const s = S.sheet; if(s && s.type === 'sort') s.count++; patch(id, {later:true, day:null, top:false}); },
+  sortskip(b, id){ S.sheet.skipped.push(id); renderSheet(); },
+  unblock(b, id){ patch(id, {wait:''}); toast('Unblocked. It is yours again.'); },
+  toinbox(b, id){ patch(id, {later:false}); },
+  latertoggle(){ S.laterOpen = !S.laterOpen; render(); },
+  picknext(){ const L = lists(), t = L.tops.find(x => !x.done) || L.also[0]; if(t) startFocus(t.id); },
+  picksmall(){ const c = lists().openToday.slice().sort((a, b) => (a.est || 999) - (b.est || 999) || a.createdAt - b.createdAt); if(c[0]) startFocus(c[0].id); },
+  edrep(b){ const d = S.sheet.draft; d.repeat = b.dataset.r || ''; if(d.repeat && !d.day){ d.day = S.today; d.later = false; } renderSheet(); },
   undo(){ const u = S.undo; S.undo = null; $('#toast').hidden = true; if(u) u(); },
   wk(b){ S.weekOffset += Number(b.dataset.d); render(); },
   wknow(){ S.weekOffset = 0; render(); },
-  shutdown(){ S.sheet = {type:'shutdown'}; renderSheet(); },
+  shutdown(){ S.sheet = {type:'shutdown'}; renderSheet(true); },
   otoggle(b){
     const k = wkKey(), w = pendWeek[k] || getWeek(), i = Number(b.dataset.i);
     if(!w.o[i].t) return;
@@ -890,7 +983,12 @@ const ACT = {
     if(!pendWeek[k]) setWeek(k, w);
   },
   edest(b){ const d = S.sheet.draft, n = Number(b.dataset.n); d.est = d.est === n ? 0 : n; renderSheet(); },
-  edday(b){ const d = S.sheet.draft; d.day = b.dataset.day || null; if(!d.day) d.top = false; S.sheet.err = ''; renderSheet(); },
+  edday(b){
+    const d = S.sheet.draft, k = b.dataset.day;
+    if(k === 'later'){ d.day = null; d.later = true; } else { d.day = k || null; d.later = false; }
+    if(!d.day){ d.top = false; d.repeat = ''; }
+    S.sheet.err = ''; renderSheet();
+  },
   edtop(){ const d = S.sheet.draft; d.top = !d.top; if(d.top && !d.day) d.day = S.today; S.sheet.err = ''; renderSheet(); },
   edspace(b){ S.sheet.draft.space = b.dataset.space; S.sheet.err = ''; renderSheet(); },
   edsave(){ saveEdit(); },
@@ -924,12 +1022,13 @@ document.addEventListener('input', e => {
   if(!s || s.type !== 'edit') return;
   if(e.target.id === 'ed-title') s.draft.title = e.target.value;
   else if(e.target.id === 'ed-step') s.draft.step = e.target.value;
+  else if(e.target.id === 'ed-wait') s.draft.wait = e.target.value;
 });
 document.addEventListener('change', e => {
   const el = e.target;
   if(el.id === 'ed-date' && S.sheet && S.sheet.type === 'edit'){
     S.sheet.draft.day = el.value || null;
-    if(!S.sheet.draft.day) S.sheet.draft.top = false;
+    if(S.sheet.draft.day) S.sheet.draft.later = false; else S.sheet.draft.top = false;
     renderSheet();
   }else if(el.dataset && el.dataset.outcome != null && B){
     const k = wkKey(), w = pendWeek[k] || getWeek(), i = Number(el.dataset.outcome);
