@@ -99,11 +99,12 @@ input{font:inherit;color:inherit}
 .spaces button{min-height:40px;padding:8px 14px;font-weight:600;font-size:14px}
 .spaces button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 #main{flex:1;min-height:0;overflow-y:auto;padding:0 20px 28px}
-#bar{display:grid;grid-template-columns:1fr 1fr 1fr auto;border-top:2px solid var(--ink);background:var(--paper)}
-#bar button{min-height:58px;font-weight:600;font-size:15px;text-align:center}
+#bar{display:grid;grid-template-columns:repeat(4,1fr) auto;border-top:2px solid var(--ink);background:var(--paper)}
+#bar button{min-height:58px;font-weight:600;font-size:14.5px;text-align:center}
 #bar .tab[aria-current="page"]{box-shadow:inset 0 4px 0 var(--accent-ink)}
 #bar .tab .n{display:inline-block;min-width:20px;margin-left:4px;padding:0 6px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}
-#bar .cap{padding:0 20px;background:var(--accent);color:var(--on-accent);font-size:16px}
+#bar .cap{padding:0 14px;background:var(--accent);color:var(--on-accent);font-size:16px}
+@media (max-width:359px){#bar button{font-size:13px}#bar .cap{padding:0 10px;font-size:14px}}
 
 /* ---------- sections and rows ---------- */
 section{margin-top:22px}
@@ -146,6 +147,16 @@ section{margin-top:22px}
 .topmark{display:inline-block;width:8px;height:8px;margin:0 7px 2px 0;background:var(--accent-ink);vertical-align:middle}
 .stuck{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:12px 0 2px;border-top:1px solid var(--rule);font-size:14.5px;color:var(--quiet)}
 .stuck .btn{color:var(--ink)}
+.dots{margin-right:6px;letter-spacing:2px;color:var(--accent-ink)}
+.dmark{justify-self:center;width:11px;height:11px;border:2px solid var(--accent-ink);transform:rotate(45deg)}
+.aheadbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:8px 0 6px}
+.jump{display:inline-flex;align-items:center;gap:8px}
+.aheadbar label{font-size:13px;color:var(--quiet)}
+.aheadh{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:14px;border-bottom:2px solid var(--ink)}
+.aheadh + .row{border-top:0}
+.datepill{min-height:36px;padding:0 12px;border:1px solid var(--quiet);border-radius:999px;background:var(--paper);font-size:16px}
+.stack{display:grid;gap:8px;justify-items:start}
+.stack input[type="text"]{justify-self:stretch}
 .sortbtn{margin:8px 0 6px}
 .linkbtn{min-height:32px;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .sortitem{margin:4px 0 2px;font:700 24px/1.15 var(--display);font-stretch:85%;overflow-wrap:anywhere;text-wrap:balance}
@@ -245,7 +256,7 @@ section{margin-top:22px}
 .sheet label,.sheet legend{display:block;margin:0 0 6px;padding:0;font-size:13px;font-weight:600;color:var(--quiet)}
 .sheet fieldset{min-width:0;margin:0;padding:0;border:0}
 .sheet input[type="text"],.sheet input[type="date"]{width:100%;min-height:48px;padding:0 12px;border:1.5px solid var(--ink);border-radius:8px;background:var(--paper)}
-.sheet input[type="date"]{width:auto;min-height:36px;border-width:1px;border-color:var(--quiet);border-radius:999px;font-size:14px}
+.sheet input[type="date"]{width:auto;min-height:36px;border-width:1px;border-color:var(--quiet);border-radius:999px;font-size:16px}
 #capform{display:flex;gap:8px}
 #capform input{flex:1;min-width:0}
 .note{margin:0;font-size:14px;color:var(--quiet)}
@@ -284,7 +295,7 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ESC[c]);
 const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const DOWL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const VIEWS = ['today','inbox','week'];
+const VIEWS = ['today','inbox','week','life'];
 const HEAVY = {work:300, personal:180};   /* minutes planned before a day is flagged */
 const pad = n => String(n).padStart(2,'0');
 const dkey = d => d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
@@ -307,11 +318,14 @@ function mins(m){
   return h + 'h' + (r ? ' ' + r + 'm' : '');
 }
 const clip = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
+const daysBetween = (a, b) => Math.round((fromKey(b) - fromKey(a)) / 86400000);
+const ago = n => n <= 0 ? 'today' : n === 1 ? 'yesterday' : n < 14 ? n + ' days ago' : n < 60 ? Math.round(n / 7) + ' weeks ago' : Math.round(n / 30) + ' months ago';
+const inDays = n => n < 0 ? ago(-n) : n === 0 ? 'today' : n === 1 ? 'tomorrow' : n < 14 ? 'in ' + n + ' days' : n < 60 ? 'in ' + Math.round(n / 7) + ' weeks' : 'in ' + Math.round(n / 30) + ' months';
 
 /* ---------- state ---------- */
 const S = {
   view:'today', space:'work', weekOffset:0, today:dkey(new Date()),
-  tasks:new Map(), weeks:new Map(), focus:null,
+  tasks:new Map(), weeks:new Map(), focus:null, projects:new Map(), people:new Map(),
   loaded:false, mode:'loading', confirmed:false, stale:false,
   sheet:null, nowOpen:false, undo:null, laterOpen:false
 };
@@ -320,6 +334,7 @@ try{ const sp = localStorage.getItem('three-things-space'); if(sp === 'work' || 
 /* ---------- storage ---------- */
 let B = null;
 let baseTasks = new Map(), baseWeeks = new Map(), baseFocus = new Map();
+const base = {projects:new Map(), people:new Map()};
 const chains = {};
 function enqueue(key, fn){
   const run = (chains[key] || Promise.resolve()).then(fn);
@@ -345,10 +360,13 @@ function overlay(){
   };
 }
 const oT = overlay(), oW = overlay(), oF = overlay();
+const oX = {projects:overlay(), people:overlay()};
 function recompute(){
   S.tasks = oT.apply(baseTasks);
   S.weeks = oW.apply(baseWeeks);
   S.focus = oF.apply(baseFocus).get('f') || null;
+  S.projects = oX.projects.apply(base.projects);
+  S.people = oX.people.apply(base.people);
 }
 function refresh(){ recompute(); render(); }
 function writeFailed(e){
@@ -364,7 +382,7 @@ function memoryBackend(persist){
     try{
       const weeks = {};
       baseWeeks.forEach((v, k) => { weeks[k] = v; });
-      localStorage.setItem(KEY, JSON.stringify({tasks:[...baseTasks.values()], weeks, focus:baseFocus.get('f') || null}));
+      localStorage.setItem(KEY, JSON.stringify({tasks:[...baseTasks.values()], weeks, focus:baseFocus.get('f') || null, projects:[...base.projects.values()], people:[...base.people.values()]}));
     }catch(e){}
   }
   return {
@@ -374,6 +392,10 @@ function memoryBackend(persist){
     delTask(id){ baseTasks.delete(id); save(); return Promise.resolve(); },
     putWeek(k, data){ baseWeeks.set(k, data); save(); return Promise.resolve(); },
     putFocus(data){ if(data) baseFocus.set('f', data); else baseFocus.delete('f'); save(); return Promise.resolve(); },
+    newIdIn: c => c.charAt(0) + Date.now().toString(36) + (n++).toString(36) + Math.random().toString(36).slice(2, 6),
+    putIn(c, id, data){ base[c].set(id, Object.assign({id}, data)); save(); return Promise.resolve(); },
+    patchIn(c, id, ch){ const x = base[c].get(id); if(x) base[c].set(id, Object.assign({}, x, ch)); save(); return Promise.resolve(); },
+    delIn(c, id){ base[c].delete(id); save(); return Promise.resolve(); },
     start(){
       if(persist){
         try{
@@ -382,6 +404,8 @@ function memoryBackend(persist){
             (raw.tasks || []).forEach(t => baseTasks.set(t.id, t));
             Object.keys(raw.weeks || {}).forEach(k => baseWeeks.set(k, raw.weeks[k]));
             if(raw.focus) baseFocus.set('f', raw.focus);
+            (raw.projects || []).forEach(x => base.projects.set(x.id, x));
+            (raw.people || []).forEach(x => base.people.set(x.id, x));
           }
         }catch(e){}
       }
@@ -393,6 +417,7 @@ function memoryBackend(persist){
 function dbBackend(db, uid){
   const root = db.doc('data/users/' + uid + '/planner');
   const tasks = root.collection('tasks'), weeks = root.collection('weeks'), focus = root.collection('meta').doc('focus');
+  const cols = {projects:root.collection('projects'), people:root.collection('people')};
   return {
     newId: () => tasks.doc().id,
     putTask: (id, data) => enqueue('t' + id, () => tasks.doc(id).set(data)),
@@ -400,6 +425,10 @@ function dbBackend(db, uid){
     delTask: id => enqueue('t' + id, () => tasks.doc(id).delete()),
     putWeek: (k, data) => enqueue('w' + k, () => weeks.doc(k).set(data)),
     putFocus: data => enqueue('focus', () => data ? focus.set(data) : focus.delete()),
+    newIdIn: c => cols[c].doc().id,
+    putIn: (c, id, data) => enqueue(c + id, () => cols[c].doc(id).set(data)),
+    patchIn: (c, id, ch) => enqueue(c + id, () => cols[c].doc(id).update(ch)),
+    delIn: (c, id) => enqueue(c + id, () => cols[c].doc(id).delete()),
     start(){
       const timer = setTimeout(() => { if(!S.confirmed){ S.stale = true; S.loaded = true; render(); } }, 10000);
       const settle = meta => { if(meta && !meta.fromCache){ S.confirmed = true; S.stale = false; clearTimeout(timer); } };
@@ -420,6 +449,11 @@ function dbBackend(db, uid){
         if(v) m.set('f', v);
         baseFocus = m; refresh();
       }, fail);
+      Object.keys(cols).forEach(c => cols[c].onSnapshot(snap => {
+        const m = new Map();
+        snap.docs.forEach(d => { const v = d.data(); if(v) m.set(d.id, Object.assign({id:d.id}, v)); });
+        base[c] = m; refresh();
+      }, fail));
     }
   };
 }
@@ -442,7 +476,7 @@ async function boot(){
 const strip = t => { const o = Object.assign({}, t); delete o.id; return o; };
 function create(data){
   const id = B.newId();
-  const t = Object.assign({id, title:'', step:'', est:0, space:S.space, day:null, top:false, order:0, done:false, doneAt:0, createdAt:Date.now(), rolls:0, spent:0, parked:0, later:false, wait:'', repeat:'', nextId:''}, data);
+  const t = Object.assign({id, title:'', step:'', est:0, space:S.space, day:null, top:false, order:0, done:false, doneAt:0, createdAt:Date.now(), rolls:0, spent:0, parked:0, later:false, wait:'', repeat:'', nextId:'', project:'', person:''}, data);
   oT.track(id, t, B.putTask(id, strip(t)));
   refresh();
   return id;
@@ -461,6 +495,39 @@ function remove(id){
   return cur;
 }
 function restore(t){ oT.track(t.id, t, B.putTask(t.id, strip(t))); refresh(); }
+/* projects and people share one set of helpers; c is 'projects' or 'people' */
+function createIn(c, data){
+  const id = B.newIdIn(c), v = Object.assign({id, createdAt:Date.now()}, data);
+  oX[c].track(id, v, B.putIn(c, id, strip(v)));
+  refresh();
+  return id;
+}
+function patchIn(c, id, ch){
+  const cur = S[c].get(id);
+  if(!cur) return;
+  oX[c].track(id, Object.assign({}, cur, ch), B.patchIn(c, id, ch));
+  refresh();
+}
+function removeIn(c, id){
+  if(!S[c].get(id)) return;
+  oX[c].track(id, null, B.delIn(c, id));
+  refresh();
+}
+function projectInfo(p){
+  const ts = [...S.tasks.values()].filter(t => t.project === p.id);
+  const open = ts.filter(t => !t.done).sort((a, b) => { const x = a.day || '9', y = b.day || '9'; return x < y ? -1 : x > y ? 1 : a.createdAt - b.createdAt; });
+  const ws = monday(fromKey(S.today)), a = ws.getTime(), b = addDays(ws, 7).getTime();
+  return {open, next:open[0] || null, week:ts.filter(t => t.done && t.doneAt >= a && t.doneAt < b).length};
+}
+function personInfo(p){
+  const plan = [...S.tasks.values()].filter(t => t.person === p.id && !t.done && t.day).sort((a, b) => a.day < b.day ? -1 : a.day > b.day ? 1 : 0)[0] || null;
+  const since = p.lastSeen ? daysBetween(p.lastSeen, S.today) : null;
+  return {plan, since, due:!plan && p.every > 0 && (since === null || since >= p.every)};
+}
+function stalledCount(){
+  return [...S.projects.values()].filter(p => p.space === S.space && !projectInfo(p).next).length +
+    (S.space === 'personal' ? [...S.people.values()].filter(p => personInfo(p).due).length : 0);
+}
 const topCount = (day, space, except) => [...S.tasks.values()].filter(t => t.space === space && t.day === day && t.top && t.id !== except).length;
 const tomorrowKey = () => dkey(addDays(fromKey(S.today), 1));
 
@@ -476,13 +543,14 @@ function nextDay(t){
   return dkey(d);
 }
 function spawnNext(t){
-  return create({title:t.title, step:t.step || '', est:t.est || 0, space:t.space, repeat:t.repeat, day:nextDay(t)});
+  return create({title:t.title, step:t.step || '', est:t.est || 0, space:t.space, repeat:t.repeat, project:t.project || '', day:nextDay(t)});
 }
 function finish(t){
   const ch = {done:true, doneAt:Date.now()};
   if(t.day !== S.today){ ch.day = S.today; ch.top = false; }
   let spawned = '';
   if(t.repeat){ spawned = spawnNext(t); ch.nextId = spawned; }
+  if(t.person && S.people.get(t.person)) patchIn('people', t.person, {lastSeen:S.today});
   return {ch, spawned};
 }
 function toggleDone(id){
@@ -496,9 +564,14 @@ function toggleDone(id){
   }
   if(S.focus && S.focus.taskId === id){ stopFocus(true); return; }
   const prev = {done:false, doneAt:0, day:t.day, top:t.top, nextId:''};
+  const who = t.person && S.people.get(t.person), seenPrev = who ? who.lastSeen || '' : null;
   const f = finish(t);
   patch(id, f.ch);
-  toast('Done: ' + clip(t.title, 40), () => { if(f.spawned) remove(f.spawned); patch(id, prev); });
+  toast('Done: ' + clip(t.title, 40), () => {
+    if(f.spawned) remove(f.spawned);
+    if(seenPrev !== null) patchIn('people', t.person, {lastSeen:seenPrev});
+    patch(id, prev);
+  });
 }
 function moveTo(id, to){
   const t = S.tasks.get(id);
@@ -588,12 +661,14 @@ function metaLine(t){
   if(t.parked && !t.day && !t.done) b.push('parked during focus');
   if(t.wait && !t.done) b.push('waiting on ' + esc(t.wait));
   if(t.repeat) b.push(t.repeat === 'weekly' ? 'weekly' : t.repeat === 'weekdays' ? 'weekdays' : 'daily');
+  if(t.project){ const p = S.projects.get(t.project); if(p) b.push(esc(clip(p.name, 22))); }
   if((t.rolls || 0) >= 3 && !t.done) b.push('moved ' + t.rolls + ' times');
   return b.join(' · ');
 }
 function row(t, o){
   const ml = metaLine(t);
-  const m = (o.when ? (t.day ? 'follow up ' + shortDay(fromKey(t.day)) : 'no follow-up day') + (ml ? ' · ' : '') : '') + ml;
+  const pre = o.when ? (t.day ? 'follow up ' + shortDay(fromKey(t.day)) : 'no follow-up day') : o.date && t.day ? shortDay(fromKey(t.day)) : '';
+  const m = pre + (pre && ml ? ' · ' : '') + ml;
   let acts = '';
   if(o.unblock) acts = '<button type="button" class="btn sm" data-act="unblock" data-id="' + t.id + '">Got reply</button>';
   if(o.toinbox) acts = '<button type="button" class="btn sm" data-act="toinbox" data-id="' + t.id + '">To inbox</button>';
@@ -670,13 +745,15 @@ function weekHTML(){
   const planLabel = S.weekOffset === 0 ? 'today' : DOWL[ws.getDay()];
   const range = ws.getDate() + (ws.getMonth() !== we.getMonth() ? ' ' + MON[ws.getMonth()] : '') + ' to ' + we.getDate() + ' ' + MON[we.getMonth()];
   const ok = '<span class="ok">Done</span>';
+  const stalled = stalledCount();
   let h = '<div class="wnav"><div><h2>Week ' + isoWeek(ws).week + '</h2><p>' + range + (S.weekOffset === 0 ? ' · this week' : S.weekOffset === 1 ? ' · next week' : S.weekOffset === -1 ? ' · last week' : '') + '</p></div><div class="arrows">' +
     (S.weekOffset ? '<button type="button" class="btn sm" data-act="wknow">This week</button>' : '') +
     '<button type="button" class="arrow" data-act="wk" data-d="-1" aria-label="Previous week">‹</button><button type="button" class="arrow" data-act="wk" data-d="1" aria-label="Next week">›</button></div></div>';
   h += '<ol class="ritual" aria-label="Weekly plan">' +
     '<li><button type="button" data-act="go" data-view="inbox">Empty the inbox</button>' + (L.inbox.length ? '<span class="todo">' + L.inbox.length + ' to sort</span>' : ok) + '</li>' +
     '<li><span>Name three outcomes</span>' + (named === 3 ? ok : '<span class="todo">' + named + ' of 3</span>') + '</li>' +
-    '<li><span>Pick three for ' + planLabel + '</span>' + (planTops >= 3 ? ok : '<span class="todo">' + planTops + ' of 3</span>') + '</li></ol>';
+    '<li><span>Pick three for ' + planLabel + '</span>' + (planTops >= 3 ? ok : '<span class="todo">' + planTops + ' of 3</span>') + '</li>' +
+    '<li><button type="button" data-act="go" data-view="life">' + (S.space === 'personal' ? 'Check people and projects' : 'Give each project a next step') + '</button>' + (stalled ? '<span class="todo">' + stalled + ' to look at</span>' : ok) + '</li></ol>';
   h += '<section class="outcomes"><div class="shd"><h2>Outcomes</h2><span class="hint">What would make this week a win?</span></div>' +
     w.o.map((o, i) => '<div class="outcome' + (o.d ? ' is-done' : '') + '"><button type="button" class="check" data-act="otoggle" data-i="' + i + '" aria-pressed="' + o.d + '" aria-label="Outcome ' + (i + 1) + ' reached"' + (o.t ? '' : ' disabled') + '></button><input type="text" id="out-' + i + '" data-outcome="' + i + '" value="' + esc(o.t) + '" placeholder="Outcome ' + (i + 1) + '" maxlength="140" aria-label="Outcome ' + (i + 1) + '" autocomplete="off"></div>').join('') + '</section>';
   h += '<section><div class="days">';
@@ -691,6 +768,7 @@ function weekHTML(){
       (ts.length ? ts.map(t => row(t, {mark:true})).join('') : '<p class="empty-day">' + (k < S.today ? 'Nothing logged' : 'Open') + '</p>') + '</div>';
   }
   h += '</div></section>';
+  h += aheadHTML(L, we);
   const a = ws.getTime(), b = addDays(ws, 7).getTime();
   const wins = L.all.filter(t => t.done && t.doneAt >= a && t.doneAt < b).sort((x, y) => x.doneAt - y.doneAt);
   const focused = wins.reduce((s, t) => s + (t.spent || 0), 0);
@@ -706,12 +784,76 @@ function weekHTML(){
   return h;
 }
 
+/* ---------- life: people and projects ---------- */
+function personRow(x){
+  const p = x.p, i = x.i;
+  let m, act;
+  if(i.plan){
+    const n = daysBetween(S.today, i.plan.day);
+    m = (n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : shortDay(fromKey(i.plan.day))) + ' · ' + esc(i.plan.title);
+    act = n <= 0 ? '<button type="button" class="btn sm solid" data-act="toggle" data-id="' + i.plan.id + '">Saw them</button>' : '';
+  }else{
+    m = i.since === null ? 'No meet-ups logged yet' : 'Last seen ' + ago(i.since);
+    act = '<button type="button" class="btn sm' + (i.due ? ' solid' : '') + '" data-act="planperson" data-id="' + p.id + '">Plan</button>';
+  }
+  return '<div class="row nock"><button type="button" class="rbody" data-act="person" data-id="' + p.id + '"><span class="t">' + esc(p.name) + '</span><span class="m">' + m + '</span>' +
+    (i.due ? '<span class="m nudge">' + (i.since === null ? 'Plan something?' : 'Time to reach out') + '</span>' : '') +
+    (p.note ? '<span class="m">Ask about: ' + esc(p.note) + '</span>' : '') + '</button><span class="racts">' + act + '</span></div>';
+}
+function projectRow(p){
+  const i = projectInfo(p), done = Math.min(i.week, p.perWeek || 0);
+  return '<div class="row nock"><button type="button" class="rbody" data-act="project" data-id="' + p.id + '"><span class="t">' + esc(p.name) + '</span>' +
+    (i.next ? '<span class="m">Next: ' + esc(i.next.title) + ' · ' + (!i.next.day ? 'no day yet' : i.next.day === S.today ? 'today' : shortDay(fromKey(i.next.day))) + '</span>' : '<span class="m nudge">No next step yet</span>') +
+    (p.perWeek ? '<span class="m"><span class="dots" aria-hidden="true">' + '●'.repeat(done) + '○'.repeat(p.perWeek - done) + '</span>' + i.week + ' of ' + p.perWeek + ' this week</span>' : '') +
+    (p.due ? '<span class="m">' + esc(p.dueLabel || 'Deadline') + ' · ' + shortDay(fromKey(p.due)) + ', ' + inDays(daysBetween(S.today, p.due)) + '</span>' : '') +
+    '</button><span class="racts"><button type="button" class="btn sm' + (i.next ? '' : ' solid') + '" data-act="addstep" data-id="' + p.id + '">' + (i.next ? 'Add step' : 'Next step') + '</button></span></div>';
+}
+function lifeHTML(){
+  let h = '';
+  if(S.space === 'personal'){
+    const ps = [...S.people.values()].map(p => ({p, i:personInfo(p)}));
+    const rank = x => x.i.plan ? 0 : x.i.due ? 1 : 2;
+    ps.sort((a, b) => rank(a) - rank(b) || (a.i.plan && b.i.plan ? (a.i.plan.day < b.i.plan.day ? -1 : a.i.plan.day > b.i.plan.day ? 1 : 0) : 0) || a.p.name.localeCompare(b.p.name));
+    h += '<section><div class="shd"><h2>People</h2><button type="button" class="linkbtn" data-act="newperson">+ Add person</button></div>' +
+      (ps.length ? ps.map(personRow).join('') : '<p class="quietp">Add the people you want to keep up with. A plan lands on its day in Today and Week, and a nudge shows here when it has been a while.</p>') + '</section>';
+  }
+  const pr = [...S.projects.values()].filter(p => p.space === S.space).sort((a, b) => a.createdAt - b.createdAt);
+  h += '<section><div class="shd"><h2>Projects</h2><button type="button" class="linkbtn" data-act="newproject">+ New project</button></div>' +
+    (pr.length ? pr.map(projectRow).join('') : '<p class="quietp">A project is anything with more than one step. Keep one next step on each so none of them stalls.</p>') + '</section>';
+  return h;
+}
+/* everything dated after the week on screen, grouped by week */
+function aheadHTML(L, we){
+  const after = dkey(we), items = [];
+  L.all.forEach(t => { if(!t.done && t.day && t.day > after) items.push({day:t.day, html:row(t, {date:true})}); });
+  S.projects.forEach(p => {
+    if(p.space === S.space && p.due && p.due > after) items.push({day:p.due, html:'<div class="row"><span class="dmark" aria-hidden="true"></span><button type="button" class="rbody" data-act="project" data-id="' + p.id + '"><span class="t">' + esc(p.dueLabel || 'Deadline') + '</span><span class="m">' + shortDay(fromKey(p.due)) + ' · ' + esc(clip(p.name, 28)) + ' deadline</span></button><span class="racts"></span></div>'});
+  });
+  items.sort((a, b) => a.day < b.day ? -1 : a.day > b.day ? 1 : 0);
+  const base0 = monday(fromKey(S.today)), thisYear = fromKey(S.today).getFullYear();
+  let h = '<section><div class="shd"><h2>Coming up</h2><span class="hint">After week ' + isoWeek(we).week + '</span></div>' +
+    '<div class="aheadbar"><button type="button" class="btn sm" data-act="planahead">Plan something ahead</button><span class="jump"><label for="wk-jump">Jump to</label><input id="wk-jump" class="datepill" type="date" min="' + S.today + '"></span></div>';
+  if(!items.length) return h + '<p class="quietp">Nothing dated beyond this week yet.</p></section>';
+  let cur = '';
+  items.slice(0, 40).forEach(it => {
+    const m = monday(fromKey(it.day)), k = dkey(m);
+    if(k !== cur){
+      cur = k;
+      const e = addDays(m, 6);
+      h += '<div class="aheadh"><button type="button" class="linkbtn" data-act="wkgo" data-off="' + Math.round((m - base0) / 604800000) + '">Week ' + isoWeek(m).week + '</button><span class="hint">' + m.getDate() + ' ' + MON[m.getMonth()] + ' to ' + e.getDate() + ' ' + MON[e.getMonth()] + (e.getFullYear() !== thisYear ? ' ' + e.getFullYear() : '') + '</span></div>';
+    }
+    h += it.html;
+  });
+  if(items.length > 40) h += '<p class="quietp">' + (items.length - 40) + ' more further out.</p>';
+  return h + '</section>';
+}
+
 /* ---------- render ---------- */
 const last = {};
 function put(id, html){ if(last[id] !== html){ last[id] = html; $('#' + id).innerHTML = html; return true; } return false; }
 function renderTop(){
   const d = fromKey(S.today);
-  const busy = oT.busy() || oW.busy() || oF.busy();
+  const busy = oT.busy() || oW.busy() || oF.busy() || oX.projects.busy() || oX.people.busy();
   let s = 'ok', label = 'Synced';
   if(!S.loaded){ s = 'wait'; label = 'Loading'; }
   else if(S.mode === 'local'){ s = 'off'; label = 'This browser only'; }
@@ -727,12 +869,12 @@ function renderMain(){
   if(a && a.tagName === 'INPUT' && main.contains(a)){ mainDirty = true; return; }
   mainDirty = false;
   const y = main.scrollTop;
-  const html = !S.loaded ? '<p class="loading">Loading your plan…</p>' : noticeHTML() + (S.view === 'inbox' ? inboxHTML() : S.view === 'week' ? weekHTML() : todayHTML());
+  const html = !S.loaded ? '<p class="loading">Loading your plan…</p>' : noticeHTML() + (S.view === 'inbox' ? inboxHTML() : S.view === 'week' ? weekHTML() : S.view === 'life' ? lifeHTML() : todayHTML());
   if(put('main', html)){ main.scrollTop = y; tick(); }
 }
 function renderBar(){
   const n = S.loaded ? lists().inbox.length : 0;
-  const names = {today:'Today', inbox:'Inbox', week:'Week'};
+  const names = {today:'Today', inbox:'Inbox', week:'Week', life:S.space === 'personal' ? 'Life' : 'Projects'};
   put('bar', VIEWS.map(v => '<button type="button" class="tab" data-act="go" data-view="' + v + '"' + (S.view === v ? ' aria-current="page"' : '') + '>' + names[v] + (v === 'inbox' && n ? '<span class="n">' + n + '</span>' : '') + '</button>').join('') +
     '<button type="button" class="cap" data-act="capture"' + (S.loaded ? '' : ' disabled') + '>+ Capture</button>');
 }
@@ -774,6 +916,20 @@ function dayChoices(sel){
   if(sel && !out.some(o => o.k === sel)) out.push({k:sel, l:shortDay(fromKey(sel))});
   return out;
 }
+const sheetHead = title => '<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-h"><div class="shead"><h2 id="sh-h">' + title + '</h2><button type="button" class="x" data-act="close">Close</button></div>';
+function dayOpts(){
+  const t = fromKey(S.today), out = [{k:S.today, l:'Today'}, {k:tomorrowKey(), l:'Tomorrow'}], end = addDays(monday(t), 6);
+  for(let d = addDays(t, 2); d <= end; d = addDays(d, 1)) out.push({k:dkey(d), l:DOW[d.getDay()] + ' ' + d.getDate()});
+  const nm = dkey(addDays(monday(t), 7));
+  if(!out.some(o => o.k === nm)) out.push({k:nm, l:'Next Mon'});
+  return out;
+}
+function projChips(d){
+  const pj = [...S.projects.values()].filter(p => p.space === d.space).sort((a, b) => a.createdAt - b.createdAt);
+  if(!pj.length) return '';
+  return '<fieldset><legend>Project</legend><div class="chips"><button type="button" class="chip" data-act="edproj" data-p="" aria-pressed="' + !d.project + '">None</button>' +
+    pj.map(p => '<button type="button" class="chip" data-act="edproj" data-p="' + p.id + '" aria-pressed="' + (d.project === p.id) + '">' + esc(clip(p.name, 24)) + '</button>').join('') + '</div></fieldset>';
+}
 function capLabel(day){ return !day ? 'Inbox' : day === S.today ? 'Today' : shortDay(fromKey(day)); }
 function capCands(){
   const s = S.sheet;
@@ -788,10 +944,10 @@ function sheetHTML(){
   if(s.type === 'capture'){
     const dests = [{k:'', l:'Inbox'}, {k:S.today, l:'Today'}];
     if(s.day && s.day !== S.today) dests.push({k:s.day, l:shortDay(fromKey(s.day))});
-    return '<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-h"><div class="shead"><h2 id="sh-h">' + (s.top ? 'Pick a priority' : 'Capture') + '</h2><button type="button" class="x" data-act="close">Close</button></div>' +
+    return '<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-h"><div class="shead"><h2 id="sh-h">' + (s.top ? 'Pick a priority' : s.project ? 'Add a step' : 'Capture') + '</h2><button type="button" class="x" data-act="close">Close</button></div>' +
       '<form id="capform" autocomplete="off"><label class="vh" for="capin">What is on your mind?</label><input id="capin" type="text" placeholder="' + (s.top ? 'Name the priority' : 'What is on your mind?') + '" maxlength="200" enterkeyhint="done"><button type="submit" class="btn solid">Add</button></form>' +
-      (s.top ? '' : '<div class="chips" role="group" aria-label="Where it goes">' + dests.map(o => '<button type="button" class="chip" data-act="capdest" data-day="' + o.k + '" aria-pressed="' + ((s.day || '') === o.k) + '">' + o.l + '</button>').join('') + '</div>') +
-      '<p class="' + (s.err ? 'err' : 'note') + '" id="capnote" role="status">' + esc(s.err || (s.added ? s.added + ' added to ' + capLabel(s.lastDay) + '. Keep going, or close.' : s.top ? 'One line. You can add a first step after.' : 'Get it out of your head. Sort it later.')) + '</p>' +
+      (s.top ? '' : '<div class="chips" role="group" aria-label="Where it goes">' + dests.map(o => '<button type="button" class="chip" data-act="capdest" data-day="' + o.k + '" aria-pressed="' + ((s.day || '') === o.k) + '">' + o.l + '</button>').join('') + '<label class="vh" for="cap-date">Another date</label><input id="cap-date" type="date" value="' + (s.day || '') + '" min="' + S.today + '"></div>') +
+      '<p class="' + (s.err ? 'err' : 'note') + '" id="capnote" role="status">' + esc(s.err || (s.added ? s.added + ' added to ' + capLabel(s.lastDay) + '. Keep going, or close.' : s.top ? 'One line. You can add a first step after.' : (s.project && S.projects.get(s.project) ? 'A step for ' + S.projects.get(s.project).name + '.' : 'Get it out of your head. Sort it later.'))) + '</p>' +
       '<div id="capcands">' + capCands() + '</div></div>';
   }
   if(s.type === 'edit'){
@@ -803,11 +959,42 @@ function sheetHTML(){
       '<fieldset><legend>When</legend><div class="chips">' + dayChoices(d.day).map(o => '<button type="button" class="chip" data-act="edday" data-day="' + o.k + '" aria-pressed="' + (o.k === 'later' ? !d.day && !!d.later : o.k === '' ? !d.day && !d.later : d.day === o.k) + '">' + o.l + '</button>').join('') +
       '<label class="vh" for="ed-date">Another date</label><input id="ed-date" type="date" value="' + (d.day || '') + '" min="' + S.today + '"></div></fieldset>' +
       '<fieldset><legend>Priority</legend><div class="chips"><button type="button" class="chip" data-act="edtop" aria-pressed="' + !!d.top + '">One of the three that day</button></div></fieldset>' +
+      projChips(d) +
       '<fieldset><legend>Repeats</legend><div class="chips">' + [['', 'No'], ['daily', 'Daily'], ['weekdays', 'Weekdays'], ['weekly', 'Weekly']].map(r => '<button type="button" class="chip" data-act="edrep" data-r="' + r[0] + '" aria-pressed="' + ((d.repeat || '') === r[0]) + '">' + r[1] + '</button>').join('') + '</div></fieldset>' +
       '<div><label for="ed-wait">Waiting on</label><input id="ed-wait" type="text" value="' + esc(d.wait) + '" placeholder="Who or what? Leave empty if it is on you." maxlength="80" autocomplete="off"></div>' +
       '<fieldset><legend>Space</legend><div class="chips"><button type="button" class="chip" data-act="edspace" data-space="work" aria-pressed="' + (d.space === 'work') + '">Work</button><button type="button" class="chip" data-act="edspace" data-space="personal" aria-pressed="' + (d.space === 'personal') + '">Personal</button></div></fieldset>' +
       (s.err ? '<p class="err" role="alert">' + esc(s.err) + '</p>' : '') +
       '<div class="sfoot"><button type="button" class="btn solid" data-act="edsave">Save</button><button type="button" class="btn" data-act="eddel">' + (s.confirmDel ? 'Tap again to delete' : 'Delete') + '</button></div></div>';
+  }
+  if(s.type === 'person'){
+    const d = s.draft;
+    return sheetHead(s.id ? 'Person' : 'Add a person') +
+      '<div><label for="pe-name">Name</label><input id="pe-name" type="text" value="' + esc(d.name) + '" maxlength="60" autocomplete="off"></div>' +
+      '<div><label for="pe-note">Remember to ask about</label><input id="pe-note" type="text" value="' + esc(d.note) + '" placeholder="The new job, the trip, how the move went" maxlength="140" autocomplete="off"></div>' +
+      '<fieldset><legend>Nudge me when we have not met for</legend><div class="chips">' + [[0, 'No nudge'], [7, 'A week'], [14, '2 weeks'], [30, 'A month'], [90, '3 months']].map(o => '<button type="button" class="chip" data-act="peevery" data-n="' + o[0] + '" aria-pressed="' + (d.every === o[0]) + '">' + o[1] + '</button>').join('') + '</div></fieldset>' +
+      '<fieldset><legend>Last seen</legend><div class="chips"><button type="button" class="chip" data-act="peseen" aria-pressed="' + (d.lastSeen === S.today) + '">Today</button><label class="vh" for="pe-seen">Date last seen</label><input id="pe-seen" type="date" value="' + esc(d.lastSeen) + '" max="' + S.today + '"></div></fieldset>' +
+      (s.err ? '<p class="err" role="alert">' + esc(s.err) + '</p>' : '') +
+      '<div class="sfoot"><button type="button" class="btn solid" data-act="pesave">Save</button>' + (s.id ? '<button type="button" class="btn" data-act="pedel">' + (s.confirmDel ? 'Tap again to remove' : 'Remove') + '</button>' : '') + '</div></div>';
+  }
+  if(s.type === 'plan'){
+    const d = s.draft, p = S.people.get(s.person);
+    return sheetHead('Plan with ' + esc(p ? p.name : 'them')) +
+      '<div><label for="pl-what">What</label><input id="pl-what" type="text" value="' + esc(d.what) + '" maxlength="140" autocomplete="off"></div>' +
+      '<fieldset><legend>When</legend><div class="chips">' + dayOpts().map(o => '<button type="button" class="chip" data-act="plday" data-day="' + o.k + '" aria-pressed="' + (d.day === o.k) + '">' + o.l + '</button>').join('') +
+      '<label class="vh" for="pl-date">Another date</label><input id="pl-date" type="date" value="' + esc(d.day) + '" min="' + S.today + '"></div></fieldset>' +
+      '<p class="' + (s.err ? 'err' : 'note') + '">' + esc(s.err || 'It shows up on that day in Today and Week.') + '</p>' +
+      '<div class="sfoot"><button type="button" class="btn solid" data-act="plsave">Save plan</button></div></div>';
+  }
+  if(s.type === 'project'){
+    const d = s.draft, cur = s.id && S.projects.get(s.id), info = cur ? projectInfo(cur) : null;
+    return sheetHead(s.id ? 'Project' : 'New project') +
+      '<div><label for="pj-name">Name</label><input id="pj-name" type="text" value="' + esc(d.name) + '" maxlength="80" autocomplete="off"></div>' +
+      '<div><label for="pj-why">Why it matters</label><input id="pj-why" type="text" value="' + esc(d.why) + '" placeholder="One line you will still believe on a bad day" maxlength="140" autocomplete="off"></div>' +
+      '<fieldset><legend>Weekly minimum of finished steps</legend><div class="chips">' + [0, 1, 2, 3, 5, 7].map(n => '<button type="button" class="chip" data-act="pjweek" data-n="' + n + '" aria-pressed="' + (d.perWeek === n) + '">' + (n ? n + '×' : 'None') + '</button>').join('') + '</div></fieldset>' +
+      '<fieldset><legend>Next deadline</legend><div class="stack"><label class="vh" for="pj-duel">What is due</label><input id="pj-duel" type="text" value="' + esc(d.dueLabel) + '" placeholder="Assignment 2, thesis draft" maxlength="80" autocomplete="off"><label class="vh" for="pj-due">Deadline date</label><input id="pj-due" type="date" value="' + esc(d.due) + '"></div></fieldset>' +
+      (info && info.open.length ? '<h3>Open steps · ' + info.open.length + '</h3><div>' + info.open.slice(0, 8).map(t => row(t, {nocheck:true, date:true})).join('') + '</div>' : '') +
+      (s.err ? '<p class="err" role="alert">' + esc(s.err) + '</p>' : '') +
+      '<div class="sfoot"><button type="button" class="btn solid" data-act="pjsave">Save</button>' + (s.id ? '<button type="button" class="btn" data-act="pjdel">' + (s.confirmDel ? 'Tap again to remove' : 'Remove') + '</button>' : '') + '</div></div>';
   }
   if(s.type === 'sort'){
     const q = lists().inbox.filter(t => s.skipped.indexOf(t.id) < 0).reverse();
@@ -852,13 +1039,13 @@ function renderSheetLive(){
 }
 function openCapture(o){
   if(!S.loaded) return;
-  S.sheet = {type:'capture', day:o.day || null, top:!!o.top, added:0, lastDay:null, err:''};
+  S.sheet = {type:'capture', day:o.day || null, top:!!o.top, project:o.project || '', added:0, lastDay:null, err:''};
   renderSheet(true);
 }
 function openEdit(id){
   const t = S.tasks.get(id);
   if(!t) return;
-  S.sheet = {type:'edit', id, err:'', confirmDel:false, draft:{title:t.title, step:t.step || '', est:t.est || 0, day:t.day || null, top:!!t.top, space:t.space, later:!!t.later, wait:t.wait || '', repeat:t.repeat || ''}};
+  S.sheet = {type:'edit', id, err:'', confirmDel:false, draft:{title:t.title, step:t.step || '', est:t.est || 0, day:t.day || null, top:!!t.top, space:t.space, later:!!t.later, wait:t.wait || '', repeat:t.repeat || '', project:t.project || ''}};
   renderSheet(true);
 }
 function closeSheet(){ S.sheet = null; renderSheet(); }
@@ -870,7 +1057,7 @@ function capAdd(){
     if(topCount(s.day, S.space) >= 3){ s.err = 'That day already has three. Swap one out first.'; renderSheet(); return; }
     top = true;
   }
-  create({title, day:s.day || null, top, order:top ? Date.now() : 0});
+  create({title, day:s.day || null, top, order:top ? Date.now() : 0, project:s.project || ''});
   inp.value = '';
   if(s.top){ closeSheet(); return; }
   s.added++; s.lastDay = s.day; s.err = '';
@@ -884,8 +1071,8 @@ function saveEdit(){
   if(d.repeat && !d.day) d.day = S.today;
   if(d.day) d.later = false; else d.top = false;
   if(d.top && topCount(d.day, d.space, s.id) >= 3){ s.err = 'That day already has three priorities. Swap one out first.'; renderSheet(); return; }
-  const next = {title, step:d.step.trim(), est:d.est, day:d.day, top:d.top, space:d.space, later:!!d.later, wait:d.wait.trim(), repeat:d.repeat};
-  const DEF = {step:'', est:0, top:false, later:false, wait:'', repeat:''};
+  const next = {title, step:d.step.trim(), est:d.est, day:d.day, top:d.top, space:d.space, later:!!d.later, wait:d.wait.trim(), repeat:d.repeat, project:d.project || ''};
+  const DEF = {step:'', est:0, top:false, later:false, wait:'', repeat:'', project:''};
   const ch = {};
   Object.keys(next).forEach(k => { const cur = t[k] === undefined ? DEF[k] : t[k]; if(next[k] !== cur) ch[k] = next[k]; });
   if(ch.top) ch.order = Date.now();
@@ -990,7 +1177,66 @@ const ACT = {
     S.sheet.err = ''; renderSheet();
   },
   edtop(){ const d = S.sheet.draft; d.top = !d.top; if(d.top && !d.day) d.day = S.today; S.sheet.err = ''; renderSheet(); },
-  edspace(b){ S.sheet.draft.space = b.dataset.space; S.sheet.err = ''; renderSheet(); },
+  edspace(b){ const d = S.sheet.draft; if(d.space !== b.dataset.space){ d.space = b.dataset.space; d.project = ''; } S.sheet.err = ''; renderSheet(); },
+  edproj(b){ S.sheet.draft.project = b.dataset.p || ''; renderSheet(); },
+  newperson(){ S.sheet = {type:'person', id:null, err:'', draft:{name:'', note:'', every:30, lastSeen:''}}; renderSheet(true); const i = $('#pe-name'); if(i) i.focus(); },
+  person(b, id){
+    const p = S.people.get(id);
+    if(!p) return;
+    S.sheet = {type:'person', id, err:'', confirmDel:false, draft:{name:p.name, note:p.note || '', every:p.every || 0, lastSeen:p.lastSeen || ''}};
+    renderSheet(true);
+  },
+  peevery(b){ S.sheet.draft.every = Number(b.dataset.n); renderSheet(); },
+  peseen(){ const d = S.sheet.draft; d.lastSeen = d.lastSeen === S.today ? '' : S.today; renderSheet(); },
+  pesave(){
+    const s = S.sheet, d = s.draft, name = d.name.trim();
+    if(!name){ s.err = 'Add a name first.'; renderSheet(); return; }
+    const v = {name, note:d.note.trim(), every:d.every, lastSeen:d.lastSeen || ''};
+    closeSheet();
+    if(s.id) patchIn('people', s.id, v); else createIn('people', v);
+  },
+  pedel(){
+    const s = S.sheet;
+    if(!s.confirmDel){ s.confirmDel = true; renderSheet(); return; }
+    closeSheet(); removeIn('people', s.id); toast('Removed from People.');
+  },
+  planperson(b, id){
+    const p = S.people.get(id);
+    if(!p) return;
+    S.sheet = {type:'plan', person:id, err:'', draft:{what:'See ' + p.name, day:tomorrowKey()}};
+    renderSheet(true);
+  },
+  plday(b){ S.sheet.draft.day = b.dataset.day; S.sheet.err = ''; renderSheet(); },
+  plsave(){
+    const s = S.sheet, d = s.draft, what = d.what.trim();
+    if(!what || !d.day){ s.err = 'Add what you will do and pick a day.'; renderSheet(); return; }
+    closeSheet();
+    create({title:what, day:d.day, person:s.person, space:'personal'});
+    toast('Planned for ' + shortDay(fromKey(d.day)) + '.');
+  },
+  newproject(){ S.sheet = {type:'project', id:null, err:'', draft:{name:'', why:'', perWeek:0, dueLabel:'', due:''}}; renderSheet(true); const i = $('#pj-name'); if(i) i.focus(); },
+  project(b, id){
+    const p = S.projects.get(id);
+    if(!p) return;
+    S.sheet = {type:'project', id, err:'', confirmDel:false, draft:{name:p.name, why:p.why || '', perWeek:p.perWeek || 0, dueLabel:p.dueLabel || '', due:p.due || ''}};
+    renderSheet(true);
+  },
+  pjweek(b){ S.sheet.draft.perWeek = Number(b.dataset.n); renderSheet(); },
+  pjsave(){
+    const s = S.sheet, d = s.draft, name = d.name.trim();
+    if(!name){ s.err = 'Give the project a name.'; renderSheet(); return; }
+    const v = {name, why:d.why.trim(), perWeek:d.perWeek, dueLabel:d.dueLabel.trim(), due:d.due || ''};
+    closeSheet();
+    if(s.id) patchIn('projects', s.id, v); else createIn('projects', Object.assign({space:S.space}, v));
+  },
+  pjdel(){
+    const s = S.sheet;
+    if(!s.confirmDel){ s.confirmDel = true; renderSheet(); return; }
+    closeSheet(); removeIn('projects', s.id); toast('Project removed. Its tasks stay.');
+  },
+  addstep(b, id){ openCapture({project:id}); },
+  planahead(){ openCapture({day:dkey(addDays(monday(fromKey(S.today)), 7))}); },
+  wkgo(b){ S.weekOffset = Number(b.dataset.off); render(); $('#main').scrollTop = 0; },
   edsave(){ saveEdit(); },
   eddel(){
     const s = S.sheet;
@@ -1017,15 +1263,25 @@ document.addEventListener('submit', e => {
     create({title:text, parked:f.startedAt, space:t ? t.space : S.space});
   }
 });
+const FIELD = {'ed-title':'title', 'ed-step':'step', 'ed-wait':'wait', 'pe-name':'name', 'pe-note':'note', 'pj-name':'name', 'pj-why':'why', 'pj-duel':'dueLabel', 'pl-what':'what'};
+const DATES = {'pe-seen':'lastSeen', 'pj-due':'due', 'pl-date':'day'};
 document.addEventListener('input', e => {
-  const s = S.sheet;
-  if(!s || s.type !== 'edit') return;
-  if(e.target.id === 'ed-title') s.draft.title = e.target.value;
-  else if(e.target.id === 'ed-step') s.draft.step = e.target.value;
-  else if(e.target.id === 'ed-wait') s.draft.wait = e.target.value;
+  const s = S.sheet, f = FIELD[e.target.id];
+  if(s && s.draft && f) s.draft[f] = e.target.value;
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  /* a date typed by hand passes through years like 0002 on its way to 2026; wait for a real one */
+  if(el.type === 'date' && el.value && Number(el.value.slice(0, 4)) < 2020) return;
+  if(DATES[el.id] && S.sheet && S.sheet.draft){ S.sheet.draft[DATES[el.id]] = el.value || ''; S.sheet.err = ''; renderSheet(); return; }
+  if(el.id === 'cap-date' && S.sheet && S.sheet.type === 'capture'){ S.sheet.day = el.value || null; S.sheet.err = ''; renderSheet(); return; }
+  if(el.id === 'wk-jump'){
+    if(el.value){
+      S.weekOffset = Math.round((monday(fromKey(el.value)) - monday(fromKey(S.today))) / 604800000);
+      el.blur(); render(); $('#main').scrollTop = 0;
+    }
+    return;
+  }
   if(el.id === 'ed-date' && S.sheet && S.sheet.type === 'edit'){
     S.sheet.draft.day = el.value || null;
     if(S.sheet.draft.day) S.sheet.draft.later = false; else S.sheet.draft.top = false;

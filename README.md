@@ -19,6 +19,12 @@ Smaller helpers on top of that loop:
 - **Not sure where to start?** starts the timer on the next priority or on the smallest task of the day.
 - **Week summary** shows focused time and how actual time compared with the estimates.
 
+Beyond the week:
+
+- **Life** (Personal) keeps the people you want to stay in touch with: a plan with someone lands on its day, finishing it records when you last saw them, and a nudge appears when it has been longer than you chose.
+- **Projects** (both spaces) each show their next step, an optional weekly minimum of finished steps, and the next deadline. A project with no next step is flagged.
+- **Coming up** lists everything dated after the week on screen, grouped by week, with project deadlines included. Capture can send a task straight to any date.
+
 Colours follow the Irish tricolour: green for Work, orange for Personal, white between.
 
 ## Running it
